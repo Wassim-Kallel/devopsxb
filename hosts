@@ -1,0 +1,6 @@
+[servers_prod]
+srv-prod-web.clickcount.intranet.net
+[servers_stage]
+srv-staging-web.clickcount.intranet.net
+[servers_db]
+srv-redis.clickcount.intranet.net

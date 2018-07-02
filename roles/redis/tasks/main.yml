@@ -1,0 +1,50 @@
+---
+- name: Check install redis 
+  stat: path={{INSTALL_DIR}}/redis-stable
+  register: st
+  
+- name: Downloads redis 
+  get_url: url={{OUTIL_URL_REDIS}} dest=/tmp
+  when: not st.stat.exists
+  
+- name: Extract redis file 
+  unarchive: src=/tmp/redis-{{REDIS_VERSION}}.tar.gz copy=no dest=/tmp
+  when: not st.stat.exists
+
+- name: make sure that /app/list/data/redis
+  file: path={{REDIS_DBDIR}} state=directory mode=0755
+  when: not st.stat.exists 
+  
+- name: make sure that /app/list/logs exists
+  file: path={{REDIS_PID_FILE}} state=directory mode=0755
+  when: not st.stat.exists 
+  
+- name: install redis
+  command: make PREFIX={{INSTALL_DIR}}/redis-stable install
+  args:
+    chdir: /tmp/redis-{{REDIS_VERSION}}
+  when: not st.stat.exists
+  
+- name: make sure that config folder exists
+  file: path={{INSTALL_DIR}}/redis-stable/config state=directory mode=0755
+  when: not st.stat.exists 
+
+- name: copy config file redis.conf
+  template: src=redis.conf.j2 dest={{INSTALL_DIR}}/redis-stable/config/redis.conf mode=0755
+  when: not st.stat.exists
+  
+- name: copy script file 
+  template: src=init-redis-server.sh.j2 dest={{INSTALL_DIR}}/redis-stable/init-redis-server.sh mode=075
+  when: not st.stat.exists
+
+- name: clean tmp folder
+  command: rm -rf /tmp/{{item}}
+  with_items: 
+           - redis-{{REDIS_VERSION}}
+           - redis-{{REDIS_VERSION}}.tar.gz
+  when: not st.stat.exists
+
+- name: Start redis Server
+  shell: sudo init-server-redis restart
+  args: 
+    chdir: /tools/list/product/redis-stable

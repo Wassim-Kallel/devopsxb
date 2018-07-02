@@ -1,0 +1,41 @@
+HEAP_SIZE: -Xms128m -Xmx256m
+INSTALL_DIR: /tools/list/product
+###Configuration server.xml
+APP_ENCODING: UTF-8
+TOMCAT_VERSION: 8.0.35
+JRE_VERSION: 8u91-linux-x64
+JAVA_VERSION: 1.8.0_91
+HTTPS_PORT: 443
+APACHE_PORT: 80
+HTTP_PORT: 8080
+PORT_SHUTDOWN: 8005
+AJP_PORT: 8008
+OUTIL_URL_JRE: http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jre-8u171-linux-x64.tar.gz
+OUTIL_URL_APR: http://mirrors.standaloneinstaller.com/apache//apr/apr-1.6.3.tar.gz
+OUTIL_URL_APR_UTIL: http://mirrors.standaloneinstaller.com/apache//apr/apr-util-1.6.1.tar.gz
+OUTIL_URL_HTTPD: http://mirror.ibcp.fr/pub/apache//httpd/httpd-2.4.33.tar.gz
+OUTIL_URL_TOMCAT: http://mirrors.ircam.fr/pub/apache/tomcat/tomcat-8/v8.5.32/bin/apache-tomcat-8.5.32.tar.gz
+##REDIS Configuration Log and PID file##
+REDIS_PID_FILE: /app/list/logs/redis
+REDIS_DBDIR: /app/list/data/redis
+REDIS_VERSION: 3.2.0
+##HTTPD Configuration 
+HTTPD_VERSION: 2.4.20
+APR_VERSION: 1.5.2
+APR_UTIL_VERSION: 1.5.4
+###APPLICATION Parameters 
+CODEAPPLI: clickCount 
+APP_DIR: /app/list/data/insttaledApps
+DIR_APP_NAME: clickCount
+### Application configuration 
+HOSTNAME: clc.company.org
+URL_APP: clc.company.org
+APP_CONTEXT: clickCount
+PORT_APACHE: 80
+HTTP_LOG: /app/list/logs
+URL_NEXUS_APP: URL_NEXUS_APPS/clickCount
+APP_NAME: clickCount
+
+
+
+

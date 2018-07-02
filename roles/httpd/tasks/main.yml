@@ -1,0 +1,79 @@
+--- 
+- name: Check install apache2 
+  stat: path={{INSTALL_DIR}}/apache2
+  register: st
+ 
+- name: Creates directory log http
+  file: path={{HTTP_LOG}}/{{APP_NAME}}/http state=directory  mode=0777
+  when: not st.stat.exists
+  
+- name: Télecharger httpd
+  get_url: url={{OUTIL_URL_HTTPD}} dest=/tmp
+  when: not st.stat.exists
+  
+- name: extract httpd
+  unarchive: src=/tmp/httpd-{{HTTPD_VERSION}}.tar.gz dest=/tmp copy=no
+  when: not st.stat.exists
+  
+- name: Télécharger APR
+  get_url: url={{OUTIL_URL_APR}} dest=/tmp
+  when: not st.stat.exists
+  
+
+- name: extract APR
+  unarchive: src=/tmp/apr-{{APR_VERSION}}.tar.gz copy=no dest=/tmp
+  when: not st.stat.exists
+  
+- name: move APR-UTIL 
+  command: mv /tmp/apr-{{APR_VERSION}} /tmp/httpd-{{HTTPD_VERSION}}/srclib/apr
+  when: not st.stat.exists
+  
+- name: Télécharger APR-UTIL
+  get_url: url={{OUTIL_URL_APR_UTIL}} dest=/tmp
+  when: not st.stat.exists
+    
+- name: extract APR-UTIL
+  unarchive: src=/tmp/apr-util-{{APR_UTIL_VERSION}}.tar.gz copy=no dest=/tmp
+  when: not st.stat.exists
+
+- name: move APR-UTIL 
+  command: mv /tmp/apr-util-{{APR_UTIL_VERSION}}  /tmp/httpd-{{HTTPD_VERSION}}/srclib/apr-util
+  when: not st.stat.exists
+  
+ 
+- name: Configure httpd 
+  command: ./configure --prefix={{INSTALL_DIR}}/apache2 --enable-mods-shared=all --with-pcre --enable-so --with-included-apr
+  args:
+    chdir: /tmp/httpd-{{HTTPD_VERSION}}
+  when: not st.stat.exists
+  
+- name: make httpd
+  command: make
+  args:
+       chdir: /tmp/httpd-{{HTTPD_VERSION}}
+  when: not st.stat.exists
+  
+- name: make httpd
+  command: make install
+  args:
+       chdir: /tmp/httpd-{{HTTPD_VERSION}}
+  when: not st.stat.exists
+
+- name: copy httpd conf
+  template: src=httpd.conf.j2 dest={{INSTALL_DIR}}/apache2/conf/httpd_{{CODEAPPLI}}.conf mode=0775
+  
+  
+- name: copy apachectl to apache2/bin
+  template: src=apachectl.j2 dest={{INSTALL_DIR}}/apache2/bin/apachectl_{{CODEAPPLI}} mode=0755
+  when: not st.stat.exists
+
+- name: clean directory /tmp
+  command: rm -rf /tmp/{{item}}
+  with_items: 
+           - httpd-{{HTTPD_VERSION}}.tar.gz
+           - httpd-{{HTTPD_VERSION}}
+           - apr-util-{{APR_UTIL_VERSION}}.tar.gz
+           - apr-{{APR_VERSION}}.tar.gz
+  when: not st.stat.exists
+  
+  

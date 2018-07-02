@@ -1,0 +1,58 @@
+---
+- name: Check install jre in classpath
+  stat: path={{INSTALL_DIR}}/jre{{JAVA_VERSION}}
+  register: stJRE
+  
+- name: Download JRE
+  get_url:
+    url: "{{ JRE_URL }}"
+    headers: 'Cookie:oraclelicense=accept-securebackup-cookie'
+    dest: "/tmp/"
+  when: not st.stat.exists
+  
+  
+- name: extract JRE 
+  unarchive: src=/tmp/jre-{{JRE_VERSION}}.tar.gz copy=no dest={{INSTALL_DIR}}/ mode=0775
+  when: not stJRE.stat.exists
+  
+- name: Check Tomcat exists directory
+  stat: path={{INSTALL_DIR}}/apache-tomcat-{{TOMCAT_VERSION}}/bin
+  register: sttomcat
+  
+- name: Download Tomcat
+  get_url: url={{OUTIL_URL_TOMCAT}} dest=/tmp/apache-tomcat-{{TOMCAT_VERSION}}.tar.gz
+  when: not sttomcat.stat.exists
+
+- name: Extract and Copy Tomcat 
+  unarchive: src=/tmp/apache-tomcat-{{TOMCAT_VERSION}}.tar.gz copy=no dest={{INSTALL_DIR}}/ mode=0775
+  when: not sttomcat.stat.exists
+  
+- name: Configure Tomcat server
+  template: src=server.xml.j2 dest={{INSTALL_DIR}}/apache-tomcat-{{TOMCAT_VERSION}}/conf/server.xml
+  when: not sttomcat.stat.exists
+  
+- name: Set Heap Size Tomcat
+  template: src=setenv.sh.j2 dest={{INSTALL_DIR}}/apache-tomcat-{{TOMCAT_VERSION}}/bin/setenv.sh
+  when: not sttomcat.stat.exists
+
+- name: Install Tomcat init script start/stop/status
+  template: src=tomcat-initscript.sh.j2 dest={{INSTALL_DIR}}/apache-tomcat-{{TOMCAT_VERSION}}/bin/tomcat-initscript-{{CODEAPPLI}}.sh mode=0755
+  when: not sttomcat.stat.exists
+
+- name: delete defaults applications in webapps
+  command: rm -rf {{INSTALL_DIR}}/apache-tomcat-{{TOMCAT_VERSION}}/webapps/{{item}}
+  with_items: 
+           - docs
+           - examples
+           - manager
+           - host-manager
+           - ROOT
+  when: not sttomcat.stat.exists
+ 
+- name: Deployment application 
+  get_url: url={{URL_NEXUS_APP}}/{{APP_VERSION}}/{{APP_NAME}}-{{APP_VERSION}}.war dest={{INSTALL_DIR}}//apache-tomcat-{{TOMCAT_VERSION}}/webapps/
+  notify: 
+      - Start HTTPD
+      - Start Apache Tomcat
+
+

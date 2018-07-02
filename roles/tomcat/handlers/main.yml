@@ -1,0 +1,12 @@
+---
+
+- name: Start Apache Tomcat
+  shell: tomcat-initscript-{{CODEAPPLI}}.sh restart
+  args:
+   chdir: /tools/list/product/apache-tomcat-{{TOMCAT_VERSION}}/bin
+
+- name: Start HTTPD
+  shell: apachectl_{{CODEAPPLI}} restart
+  args:
+     chdir: /tools/list/product/apache2/bin
+   
